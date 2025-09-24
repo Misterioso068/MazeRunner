@@ -1,0 +1,74 @@
+(NOT COMPLETE)
+
+MazeRunner
+A simple C++ maze game using SDL3 and OpenGL.
+
+Requirements:
+    C++ compiler supporting C++11 (tested with g++)
+
+    Make (or mingw32-make on Windows)
+
+    SDL3 development libraries
+
+    OpenGL development libraries
+    GLEW development libraries (for OpenGL function loading)
+
+Project Structure
+    MazeRunner/
+    ├─ src/              # Source code
+    ├─ include/program/  # Program headers
+    ├─ include/GL/       # SDL3/OpenGL headers (ignored in repo) YOU MUST ADD THIS
+    ├─ include/SDL3/     # SDL3 headers (ignored in repo) YOU MUST ADD THIS
+    ├─ lib/GL/           # OpenGL libraries (ignored in repo) YOU MUST ADD THIS
+    ├─ lib/SDL3/         # SDL3 libraries (ignored in repo) YOU MUST ADD THIS
+    ├─ dll/              # DLLs for Windows runtime (ignored in repo) NEEDED FOR WINDOWS
+    ├─ build/debug/      # Build output (ignored in repo)
+    ├─ Makefile
+    ├─ README.md
+    ├─ Licenses/
+    ├─ models/
+    ├─ shaders/
+
+Setup:
+    Download SDL3, OpenGL, and GLEW libraries for your platform.
+
+    Copy headers to the following structure in your project:
+
+    include/SDL3/
+    include/GL/
+
+
+    Copy libraries (.lib or .a) to:
+
+    lib/SDL3/
+    lib/GL/
+
+
+    Windows only: 
+    Copy DLLs from SDL3/OpenGL to the dll/ folder.
+
+    The Makefile will automatically copy DLLs from dll/ to build/debug/ when you build.
+
+Build:
+    From the project root:
+
+    make
+
+    This will:
+
+    Compile all src/*.cpp files into build/debug/obj/
+
+    Link them into build/debug/mazerunner.exe
+
+    Copy any required DLLs into build/debug/
+
+    Run
+
+    On Windows:
+
+    ./build/debug/mazerunner.exe
+
+Cleaning Build Files:
+    make clean
+
+    This removes all .o files and the executable.
