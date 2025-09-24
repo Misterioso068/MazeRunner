@@ -1,0 +1,25 @@
+# Build directories
+build/
+*.o
+*.obj
+*.exe
+
+# DLLs
+dll/
+*.dll
+
+# Library files
+lib/
+*.lib
+*.a
+
+# External libraries (headers)
+include/GL/
+include/SDL3/
+include/glm/
+
+# IDE / editor files
+*.idea/
+*.vscode/
+*.DS_Store
+*.log
