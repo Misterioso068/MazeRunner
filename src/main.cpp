@@ -24,9 +24,9 @@ void shuffleDirs(vector<pair<int, int>>& d) {
     shuffle(d.begin(), d.end(), g);
 }
 
-void DFSMazeGenerator(int x, int y, vector<vector<Cell>>& grid, int r, int c) {
-    grid[x][y].visited = true;
-    grid[x][y].wall = false;
+void DFSMazeGenerator(int x, int y, vector<vector<Cell>>& grid, int r, int c, double loopChance) {
+    grid[y][x].visited = true;
+    grid[y][x].wall = false;
 
     vector<pair<int,int>> dirs = {{2,0}, {-2,0}, {0,2}, {0,-2}};
     shuffleDirs(dirs);
@@ -35,11 +35,16 @@ void DFSMazeGenerator(int x, int y, vector<vector<Cell>>& grid, int r, int c) {
         int nx = x + dx;
         int ny = y + dy;
 
-        if (nx >= 0 && nx < r && ny >= 0 && ny < c && !grid[nx][ny].visited) {
-            // Knock down the wall *between* (x,y) and (nx,ny)
-            grid[x + dx/2][y + dy/2].wall = false;
-
-            DFSMazeGenerator(nx, ny, grid, r, c);
+        if (nx >= 0 && nx < c && ny >= 0 && ny < r) {
+            if (!grid[ny][nx].visited) {
+                // Knock down the wall *between* (x,y) and (nx,ny)
+                grid[y + dy/2][x + dx/2].wall = false;
+                DFSMazeGenerator(nx, ny, grid, r, c, loopChance);
+            }
+            else if (rand() % 100 < loopChance * 100) {
+                // With some probabilty carve into the already visited neighbor so that we have loops/escape routes
+                grid[y + dy/2][x + dx/2].wall = false;
+            }
         }
     }
 }
@@ -100,10 +105,11 @@ int main(void) {
     const int COLS = 10;
     const int GRIDROWS = 2 * ROWS + 1;
     const int GRIDCOLS = 2 * COLS + 1;
+    const double LOOPCHANCE = 0.02;
 
     vector<vector<Cell>> grid(GRIDROWS, vector<Cell>(GRIDCOLS));
     fillGrid(grid, GRIDROWS, GRIDCOLS);
-    DFSMazeGenerator(1, 1, grid, GRIDROWS, GRIDCOLS);
+    DFSMazeGenerator(1, 1, grid, GRIDROWS, GRIDCOLS, LOOPCHANCE);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -126,7 +132,7 @@ int main(void) {
                 else if (SDLK_R == event.key.key) {
                     //Redraw maze
                     fillGrid(grid, GRIDROWS, GRIDCOLS);
-                    DFSMazeGenerator(1, 1, grid, GRIDROWS, GRIDCOLS);
+                    DFSMazeGenerator(1, 1, grid, GRIDROWS, GRIDCOLS, LOOPCHANCE);
                 }
             }
         }
