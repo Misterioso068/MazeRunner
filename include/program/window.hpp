@@ -23,7 +23,7 @@ public:
 
     bool init();
     void swap();
-    bool handleEvents(Maze& maze, MazeAI& ai, bool& drawPath);
+    bool handleEvents(bool& drawPath, bool& redrawMaze);
 
 };
 

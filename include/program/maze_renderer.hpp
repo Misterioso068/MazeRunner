@@ -8,6 +8,10 @@ using namespace std;
 
 class Maze;
 
+struct Color {
+    GLfloat r, g, b;
+};
+
 class MazeRenderer {
 private:
     Maze& maze;
@@ -19,9 +23,9 @@ public:
     MazeRenderer(Maze& maze, GLfloat cellSize);
     ~MazeRenderer();
 
-    void drawMaze();
-    void drawAIPath(const vector<pair<int, int>>& path);
-    void drawPlayer();
+    void drawMaze(const Color& wall, const Color& path);
+    void drawAIPath(const vector<pair<int, int>>& path, const Color& c);
+    void drawPlayer(const Color& c);
 
     void updateProjection();
     void updateCellSize(GLfloat newCellSize);

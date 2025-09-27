@@ -51,7 +51,7 @@ void Window::swap() {
     SDL_GL_SwapWindow(this->window);
 }
 
-bool Window::handleEvents(Maze& maze, MazeAI& ai, bool& drawPath) {
+bool Window::handleEvents(bool& drawPath, bool& redrawMaze) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (SDL_EVENT_QUIT == event.type) {
@@ -62,9 +62,7 @@ bool Window::handleEvents(Maze& maze, MazeAI& ai, bool& drawPath) {
                 return false;
             }
             else if (SDLK_R == event.key.key) {
-                // Redraw maze
-                maze.generate();
-                ai.BFSAIPathfinding(maze, 1, 1, 99, 99);
+                redrawMaze = true;
             }
             else if (SDLK_X == event.key.key) {
                 drawPath = true;

@@ -13,10 +13,10 @@ private:
     Window window;
     Maze maze;
     MazeRenderer mazeRenderer;
-    MazeAI ai;
 
     bool running;
     bool drawPath;
+    bool redrawMaze;
 
 public:
     Engine(int width, int height, int rows, int cols, int cellSize, double loopChance);

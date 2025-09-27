@@ -10,16 +10,16 @@ MazeRenderer::~MazeRenderer() {
     // Add later if needed
 }
 
-void MazeRenderer::drawMaze() {
+void MazeRenderer::drawMaze(const Color& wall, const Color& path) {
     const auto& grid = maze.getGrid();
 
     glBegin(GL_QUADS);
     for (int i = 0; i < maze.getGridRows(); i++) {
         for (int j = 0; j < maze.getGridCols(); j++) {
             if (grid[i][j].wall) {
-                glColor3f(0.3f, 0.3f, 0.3f); // darker grey
+                glColor3f(wall.r, wall.g, wall.b); // darker grey
             } else {
-                glColor3f(1.0f, 1.0f, 1.0f); // white
+                glColor3f(path.r, path.g, path.b); // white
             }
 
             drawCell(j, i);
@@ -28,8 +28,8 @@ void MazeRenderer::drawMaze() {
     glEnd();
 }
 
-void MazeRenderer::drawAIPath(const vector<pair<int, int>>& path) {
-    glColor3f(1.0f, 0.0f, 0.0f);
+void MazeRenderer::drawAIPath(const vector<pair<int, int>>& path, const Color& c) {
+    glColor3f(c.r, c.g, c.b);
     glBegin(GL_QUADS);
     for (auto [x, y] : path) {
         drawCell(x, y);
