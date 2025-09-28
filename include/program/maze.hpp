@@ -25,7 +25,8 @@ private:
 
     void shuffleDirs(vector<pair<int, int>>& d);
     void createGridLayout();
-    void carveMaze(int x, int y);
+    void carveMazeRecursively(int x, int y);
+    void carveMazeIteratively(int x, int y);
 
 public:
     Maze(int rows, int cols, double loopChance);

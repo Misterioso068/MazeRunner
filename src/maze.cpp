@@ -1,5 +1,6 @@
 #include <random>
 #include <algorithm>
+#include <stack>
 #include "program/maze.hpp"
 
 Maze::Maze(const int rows, const int cols, double loopChance) 
@@ -19,7 +20,7 @@ Maze::~Maze() {
 
 void Maze::generate() {
     createGridLayout();
-    carveMaze(1, 1);
+    carveMazeIteratively(1, 1);
 }
 
 void Maze::changeLoopChance(double newLoopChance) {
@@ -54,7 +55,7 @@ void Maze::createGridLayout() {
     }
 }
 
-void Maze::carveMaze(int x, int y) {
+void Maze::carveMazeRecursively(int x, int y) {
     grid[y][x].visited = true;
     grid[y][x].wall = false;
 
@@ -69,11 +70,51 @@ void Maze::carveMaze(int x, int y) {
             if (!grid[ny][nx].visited) {
                 // Knock down the wall *between* (x,y) and (nx,ny)
                 grid[y + dy/2][x + dx/2].wall = false;
-                carveMaze(nx, ny);
+                carveMazeRecursively(nx, ny);
             }
             else if (rand() % 100 < LOOPCHANCE * 100) {
                 // With some probabilty carve into the already visited neighbor so that we have loops/escape routes
                 grid[y + dy/2][x + dx/2].wall = false;
+            }
+        }
+    }
+}
+
+void Maze::carveMazeIteratively(int x, int y) {
+    grid[y][x].wall = false;
+
+    vector<vector<bool>> visited(GRIDROWS, vector<bool>(GRIDCOLS, false));
+
+    stack<pair<int, int>> s;
+    s.push({x, y});
+    visited[y][x] = true;
+
+    while (!s.empty()) {
+        auto [x, y] = s.top();
+        s.pop();
+
+        vector<pair<int,int>> dirs = {{2,0}, {-2,0}, {0,2}, {0,-2}};
+        shuffleDirs(dirs);
+
+        for (auto [dx, dy] : dirs) {
+            int nx = x + dx;
+            int ny = y + dy;
+
+            if (nx >= 0 && nx < GRIDCOLS && ny >= 0 && ny < GRIDROWS) {
+                if (!visited[ny][nx]) {
+                    // Knock down the wall *between* (x,y) and (nx,ny)
+                    grid[y + dy/2][x + dx/2].wall = false;
+                    visited[y + dy/2][x + dx/2] = true;
+                    visited[ny][nx] = true;
+
+                    s.push({x, y});
+                    s.push({nx, ny});
+                    break;
+                }
+                else if (rand() % 100 < LOOPCHANCE * 100) {
+                    // With some probabilty carve into the already visited neighbor so that we have loops/escape routes
+                    grid[y + dy/2][x + dx/2].wall = false;
+                }
             }
         }
     }
