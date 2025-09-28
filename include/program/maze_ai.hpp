@@ -46,4 +46,18 @@ public:
     const vector<pair<int, int>>& getPath() const override;
 };
 
+class A_STAR_AI : public MazeAI {
+private:
+    vector<pair<int, int>> path;
+
+public:
+    A_STAR_AI() = default;
+    ~A_STAR_AI() override = default;
+
+    void findPath(const Maze& maze, int startX, int startY, int goalX, int goalY) override;
+
+    // Getters
+    const vector<pair<int, int>>& getPath() const override;
+};
+
 #endif

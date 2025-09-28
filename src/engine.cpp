@@ -20,13 +20,17 @@ Engine::Engine(int width, int height, int rows, int cols, int cellSize, double l
 void Engine::run() {
     unique_ptr<MazeAI> bfsAI = make_unique<BFS_AI>();
     unique_ptr<MazeAI> dfsAI = make_unique<DFS_AI>();
+    unique_ptr<MazeAI> astarAI = make_unique<A_STAR_AI>();
+
     bfsAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
     dfsAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
+    astarAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
 
     Color wall = {0.3f, 0.3f, 0.3f};
     Color path = {1.0f, 1.0f, 1.0f};
     Color dfsPathColor = {0.0f, 0.0f, 1.0f};
     Color bfsPathColor = {1.0f, 0.0f, 0.0f};
+    Color astarPathColor = {0.0f, 1.0f, 0.0f};
 
     while (running) {
         running = window.handleEvents(drawPath, redrawMaze);
@@ -40,12 +44,14 @@ void Engine::run() {
         if (drawPath) {
             mazeRenderer.drawAIPath(dfsAI->getPath(), dfsPathColor);
             mazeRenderer.drawAIPath(bfsAI->getPath(), bfsPathColor);
+            mazeRenderer.drawAIPath(astarAI->getPath(), astarPathColor);
         }
 
         if (redrawMaze) {
             maze.generate();
             bfsAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
             dfsAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
+            astarAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
             redrawMaze = false;
         }
 
