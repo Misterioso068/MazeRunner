@@ -32,6 +32,11 @@ void Engine::run() {
     Color bfsPathColor = {1.0f, 0.0f, 0.0f};
     Color astarPathColor = {0.0f, 1.0f, 0.0f};
 
+    Uint32 stepDelay = 100;
+    PathAnimator bfsAnimator(bfsAI->getPath().size(), stepDelay);
+    PathAnimator dfsAnimator(dfsAI->getPath().size(), stepDelay);
+    PathAnimator astarAnimator(astarAI->getPath().size(), stepDelay);
+
     while (running) {
         running = window.handleEvents(drawPath, redrawMaze);
 
@@ -41,10 +46,26 @@ void Engine::run() {
         glLoadIdentity();
         mazeRenderer.drawMaze(wall, path);
 
+        const auto& bfsAIPath = bfsAI->getPath();
+        const auto& dfsAIPath = dfsAI->getPath();
+        const auto& astarAIPath = astarAI->getPath();
+
+        if (!drawPath) {
+            // Animate the full path slowly
+            bfsAnimator.update();
+            dfsAnimator.update();
+            astarAnimator.update();
+
+            mazeRenderer.drawAIPathAnimated(bfsAIPath, bfsAnimator.getIndex(), bfsPathColor);
+            mazeRenderer.drawAIPathAnimated(dfsAIPath, dfsAnimator.getIndex(), dfsPathColor);
+            mazeRenderer.drawAIPathAnimated(astarAIPath, astarAnimator.getIndex(), astarPathColor);
+        }
+
         if (drawPath) {
-            mazeRenderer.drawAIPath(dfsAI->getPath(), dfsPathColor);
-            mazeRenderer.drawAIPath(bfsAI->getPath(), bfsPathColor);
-            mazeRenderer.drawAIPath(astarAI->getPath(), astarPathColor);
+            // Static draw full path
+            mazeRenderer.drawAIPath(bfsAIPath, bfsPathColor);
+            mazeRenderer.drawAIPath(dfsAIPath, dfsPathColor);
+            mazeRenderer.drawAIPath(astarAIPath, astarPathColor);
         }
 
         if (redrawMaze) {
@@ -52,6 +73,11 @@ void Engine::run() {
             bfsAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
             dfsAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
             astarAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
+
+            bfsAnimator.reset(bfsAI->getPath().size());
+            dfsAnimator.reset(dfsAI->getPath().size());
+            astarAnimator.reset(astarAI->getPath().size());
+
             redrawMaze = false;
         }
 

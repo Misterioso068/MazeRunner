@@ -19,9 +19,7 @@ struct Node {
 // Custom compare function for priotery queue (min-heap on f)
 struct Compare {
     bool operator()(const shared_ptr<Node>& a, const shared_ptr<Node>& b) const {
-        if (a->f == b->f) {
-            return a->h > b->f; // prefer the node closer to the goal
-        }
+    if (a->f == b->f) return a->h > b->h; // prefer closer to goal if f equal
         return a->f > b->f;
     }
 };
@@ -36,13 +34,17 @@ void A_STAR_AI::findPath(const Maze& maze, int startX, int startY, int goalX, in
     const int r = maze.getGridRows();
     const int c = maze.getGridCols();
 
-    vector<vector<bool>> visited(r, vector<bool>(c, false));
+    // Track the shortest known cost to each cell
+    vector<vector<int>> gScore(r, vector<int>(c, INT_MAX));
+    gScore[startY][startX] = 0;
 
+    // Heuristic: Manhattan distance
     auto heuristic = [&](int x, int y) {
-        return abs(x - goalX) + abs(y - goalY); // Manhattan
+        return abs(x - goalX) + abs(y - goalY);
     };
-
+    
     priority_queue<shared_ptr<Node>, vector<shared_ptr<Node>>, Compare> pq;
+
     auto start = make_shared<Node>(startX, startY, 0, heuristic(startX, startY));
     pq.push(start);
 
@@ -50,31 +52,36 @@ void A_STAR_AI::findPath(const Maze& maze, int startX, int startY, int goalX, in
     vector<pair<int, int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
     while (!pq.empty()) {
-        shared_ptr<Node> cur = pq.top();
+        auto cur = pq.top();
         pq.pop();
 
+        // Goal reached
         if (cur->x == goalX && cur->y == goalY) {
             goalNode = cur;
             break;
         }
 
-        visited[cur->y][cur->x] = true;
-
+        // Explore neighbors
         for (auto [dx, dy] : directions) {
             int nx = cur->x + dx;
             int ny = cur->y + dy;
 
             if (nx >= 0 && nx < c && ny >= 0 && ny < r) {
-                if (!visited[ny][nx] && !grid[ny][nx].wall) {
+                if (!grid[ny][nx].wall) {
                     int newG = cur->g + 1;
-                    int newH = heuristic(nx, ny);
-                    auto neighbor = make_shared<Node>(nx, ny, newG, newH, cur);
-                    pq.push(neighbor);
+
+                    // Only consider this neighbor if we found a better path
+                    if (newG < gScore[ny][nx]) {
+                        gScore[ny][nx] = newG;
+                        auto neighbor = make_shared<Node>(nx, ny, newG, heuristic(nx, ny), cur);
+                        pq.push(neighbor);
+                    }
                 }
             }
         }
     }
 
+    // Reconstruct path
     if (goalNode) {
         for (auto cur = goalNode; cur != nullptr; cur = cur->parent) {
             path.push_back({cur->x, cur->y});

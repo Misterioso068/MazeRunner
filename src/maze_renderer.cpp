@@ -37,6 +37,15 @@ void MazeRenderer::drawAIPath(const vector<pair<int, int>>& path, const Color& c
     glEnd();
 }
 
+void MazeRenderer::drawAIPathAnimated(const vector<pair<int, int>>& path, size_t index, const Color& c) {
+    glColor3f(c.r, c.g, c.b);
+    glBegin(GL_QUADS);
+    for (size_t i = 0; i < index; i++) {
+        drawCell(path[i].first, path[i].second);
+    }
+    glEnd();
+}
+
 void MazeRenderer::drawCell(int x, int y) {
     GLfloat scaledX = x * cellSize;
     GLfloat scaledY = y * cellSize;

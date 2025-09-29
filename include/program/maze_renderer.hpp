@@ -25,6 +25,7 @@ public:
 
     void drawMaze(const Color& wall, const Color& path);
     void drawAIPath(const vector<pair<int, int>>& path, const Color& c);
+    void drawAIPathAnimated(const vector<pair<int, int>>& path, size_t index, const Color& c);
     void drawPlayer(const Color& c);
 
     void updateProjection();

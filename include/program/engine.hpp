@@ -5,6 +5,7 @@
 #include "program/maze.hpp"
 #include "program/maze_renderer.hpp"
 #include "program/maze_ai.hpp"
+#include "program/ai_path_animator.hpp"
 
 using namespace std;
 
