@@ -11,8 +11,8 @@ struct Camera2D {
     void setZoom(GLfloat z);
     void applyProjection(size_t mazeRows, size_t mazeCols);
 
-    void zoomIn(GLfloat factor = 1.1f) {zoom *= factor;};
-    void zoomOut(GLfloat factor = 1.1f) {zoom /= factor;};
+    void zoomIn(GLfloat factor = 1.1f) {zoom /= factor;};
+    void zoomOut(GLfloat factor = 1.1f) {zoom *= factor;};
 };
 
 #endif
