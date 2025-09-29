@@ -6,6 +6,7 @@
 #include "program/maze_renderer.hpp"
 #include "program/maze_ai.hpp"
 #include "program/ai_path_animator.hpp"
+#include "program/camera2D.hpp"
 
 using namespace std;
 

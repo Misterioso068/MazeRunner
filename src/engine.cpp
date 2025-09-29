@@ -16,8 +16,6 @@ Engine::Engine(int width, int height, int rows, int cols, int cellSize, double l
     if (!window.init()) {
         throw runtime_error("Failed to initialize window");
     }
-
-    mazeRenderer.updateProjection();
 }
 
 void Engine::run() {
@@ -28,7 +26,7 @@ void Engine::run() {
     int bfsStartX = 1, bfsStartY = 1;
     int dfsStartX = 1, dfsStartY = 1;
     int astarStartX = 1, astarStartY = 1;
-    int goalX = 199, goalY = 199;
+    int goalX = 1999, goalY = 1999;
 
     bfsAI->findPath(maze, bfsStartX, bfsStartY, goalX, goalY);
     dfsAI->findPath(maze, dfsStartX, dfsStartY, goalX, goalY);
@@ -42,15 +40,21 @@ void Engine::run() {
     Color bfsPathColor = {1.0f, 0.0f, 0.0f};
     Color astarPathColor = {0.0f, 1.0f, 0.0f};
 
-    PathAnimator bfsAnimator(maze, bfsAI->getPath(), 50, 400);
-    PathAnimator dfsAnimator(maze, dfsAI->getPath(), 50, 400);
-    PathAnimator astarAnimator(maze, astarAI->getPath(), 50, 400);
+    PathAnimator bfsAnimator(maze, bfsAI->getPath(), 1, 50);
+    PathAnimator dfsAnimator(maze, dfsAI->getPath(), 1, 50);
+    PathAnimator astarAnimator(maze, astarAI->getPath(), 1, 50);
+
+    // Movable Camera
+    Camera2D cam;
 
     while (running) {
-        running = window.handleEvents(drawPath, redrawMaze, beginAnimation, drawWater);
+        running = window.handleEvents(drawPath, redrawMaze, beginAnimation, drawWater, cam);
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // Update camera projection
+        cam.applyProjection(maze.getGridRows(), maze.getGridCols());
 
         glLoadIdentity();
         mazeRenderer.drawMaze(wall, path, water, drawWater);
@@ -83,9 +87,9 @@ void Engine::run() {
             dfsAI->findPath(maze, dfsStartX, dfsStartY, goalX, goalY);
             astarAI->findPath(maze, astarStartX, astarStartY, goalX, goalY);
 
-            bfsAnimator.reset(maze, bfsAI->getPath(), 50, 400);
-            dfsAnimator.reset(maze, dfsAI->getPath(), 50, 400);
-            astarAnimator.reset(maze, astarAI->getPath(), 50, 400);
+            bfsAnimator.reset(maze, bfsAI->getPath(), 1, 50);
+            dfsAnimator.reset(maze, dfsAI->getPath(), 1, 50);
+            astarAnimator.reset(maze, astarAI->getPath(), 1, 50);
 
             redrawMaze = false;
         }

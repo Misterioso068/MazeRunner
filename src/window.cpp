@@ -3,11 +3,12 @@
 #include "program/maze.hpp"
 #include "program/maze_ai.hpp"
 
-Window::Window(const char* name, const int w, const int h) : name(name), width(w), height(h) {}
+Window::Window(const char* name, const int w, const int h) 
+               : name(name), width(w), height(h), mazeContainerWidth(w), mazeContainerHeight(h), draggingMouse(false), lastMouseX(0), lastMouseY(0) {}
 
 Window::~Window() {
-    SDL_GL_DestroyContext(this->glContext);
-    SDL_DestroyWindow(this->window);
+    if (glContext) SDL_GL_DestroyContext(this->glContext);
+    if (window) SDL_DestroyWindow(this->window);
     SDL_Quit();
 }
 
@@ -42,7 +43,7 @@ bool Window::init() {
         return false;
     }
 
-    glViewport(0, 0, width, height);
+    updateViewport();
 
     return true;
 }
@@ -51,11 +52,46 @@ void Window::swap() {
     SDL_GL_SwapWindow(this->window);
 }
 
-bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& tmp) {
+void Window::updateViewport() {
+    // Keep the maze container at the center of the window
+    int offSetX = (width - mazeContainerWidth) / 2;
+    int offSetY = (height - mazeContainerHeight) / 2; 
+
+    glViewport(offSetX, offSetY, mazeContainerWidth, mazeContainerHeight);
+}
+
+bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& drawWater, Camera2D& cam) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (SDL_EVENT_QUIT == event.type) {
             return false;
+        }
+        else if (SDL_EVENT_WINDOW_RESIZED == event.type) {
+            SDL_GetWindowSize(this->window, &this->width, &this->height);
+            updateViewport();
+        }
+        else if (SDL_EVENT_MOUSE_BUTTON_DOWN == event.type) {
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                draggingMouse = true;
+                lastMouseX = event.motion.x;
+                lastMouseY = event.motion.y;
+            }
+        }
+        else if (SDL_EVENT_MOUSE_BUTTON_UP == event.type) {
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                draggingMouse = false;
+            }
+        }
+        else if (SDL_EVENT_MOUSE_MOTION == event.type) {
+            if (draggingMouse) {
+                GLfloat dx = event.motion.x - lastMouseX;
+                GLfloat dy = event.motion.y - lastMouseY;
+
+                cam.move(-dx / cam.zoom, -dy / cam.zoom);
+
+                lastMouseX = event.motion.x;
+                lastMouseY = event.motion.y;
+            }
         }
         else if (SDL_EVENT_KEY_DOWN == event.type) {
             if (SDLK_ESCAPE == event.key.key) {
@@ -77,10 +113,16 @@ bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation
                 beginAnimation = false;
             }
             else if (SDLK_T == event.key.key) {
-                tmp = true;
+                drawWater = true;
             }
             else if (SDLK_Y == event.key.key) {
-                tmp = false;
+                drawWater = false;
+            }
+            else if (SDLK_EQUALS == event.key.key) {
+                cam.zoomIn();
+            }
+            else if (SDLK_MINUS == event.key.key) {
+                cam.zoomOut();
             }
         }
     }

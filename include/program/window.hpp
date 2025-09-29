@@ -3,6 +3,7 @@
 
 #include <SDL3/SDL.h>
 #include <GL/glew.h>
+#include "program/camera2D.hpp"
 
 using namespace std;
 
@@ -16,6 +17,14 @@ private:
     const char* name;
     int width;
     int height;
+    int mazeContainerWidth;
+    int mazeContainerHeight;
+
+    bool draggingMouse;
+    GLfloat lastMouseX;
+    GLfloat lastMouseY;
+
+    void updateViewport();
 
 public:
     Window(const char* name, const int w, const int h);
@@ -23,7 +32,7 @@ public:
 
     bool init();
     void swap();
-    bool handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& tmp);
+    bool handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& drawWater, Camera2D& cam);
 
 };
 

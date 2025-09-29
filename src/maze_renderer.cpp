@@ -58,14 +58,6 @@ void MazeRenderer::drawCell(int x, int y) {
     glVertex2f(scaledX, scaledY + cellSize);
 }
 
-void MazeRenderer::updateProjection() {
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, maze.getGridCols() * cellSize, maze.getGridRows() * cellSize, 0, -1, 1); // origin at top-left
-    glMatrixMode(GL_MODELVIEW);
-}
-
 void MazeRenderer::updateCellSize(GLfloat newCellSize) {
     cellSize = newCellSize;
-    updateProjection();
 }
