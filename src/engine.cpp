@@ -8,7 +8,8 @@ Engine::Engine(int width, int height, int rows, int cols, int cellSize, double l
       maze(rows, cols, loopChance),
       mazeRenderer(maze, cellSize),
       running(true),
-      drawPath(false)
+      drawPath(false),
+      redrawMaze(false)
 {
     if (!window.init()) {
         throw runtime_error("Failed to initialize window");
@@ -22,9 +23,14 @@ void Engine::run() {
     unique_ptr<MazeAI> dfsAI = make_unique<DFS_AI>();
     unique_ptr<MazeAI> astarAI = make_unique<A_STAR_AI>();
 
-    bfsAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
-    dfsAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
-    astarAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
+    int bfsStartX = 1, bfsStartY = 1;
+    int dfsStartX = 999, dfsStartY = 1;
+    int astarStartX = 1, astarStartY = 999;
+    int goalX = 499, goalY = 499;
+
+    bfsAI->findPath(maze, bfsStartX, bfsStartY, goalX, goalY);
+    dfsAI->findPath(maze, dfsStartX, dfsStartY, goalX, goalY);
+    astarAI->findPath(maze, astarStartX, astarStartY, goalX, goalY);
 
     Color wall = {0.3f, 0.3f, 0.3f};
     Color path = {1.0f, 1.0f, 1.0f};
@@ -32,7 +38,7 @@ void Engine::run() {
     Color bfsPathColor = {1.0f, 0.0f, 0.0f};
     Color astarPathColor = {0.0f, 1.0f, 0.0f};
 
-    Uint32 stepDelay = 100;
+    Uint32 stepDelay = 1;
     PathAnimator bfsAnimator(bfsAI->getPath().size(), stepDelay);
     PathAnimator dfsAnimator(dfsAI->getPath().size(), stepDelay);
     PathAnimator astarAnimator(astarAI->getPath().size(), stepDelay);
@@ -70,9 +76,9 @@ void Engine::run() {
 
         if (redrawMaze) {
             maze.generate();
-            bfsAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
-            dfsAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
-            astarAI->findPath(maze, 1, 1, maze.getGridRows() - 2, maze.getGridCols() - 2);
+            bfsAI->findPath(maze, bfsStartX, bfsStartY, goalX, goalY);
+            dfsAI->findPath(maze, dfsStartX, dfsStartY, goalX, goalY);
+            astarAI->findPath(maze, astarStartX, astarStartY, goalX, goalY);
 
             bfsAnimator.reset(bfsAI->getPath().size());
             dfsAnimator.reset(dfsAI->getPath().size());
