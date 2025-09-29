@@ -11,15 +11,16 @@ struct Cell {
     int col;
     bool visited;
     bool wall;
+    bool water;
 
-    Cell() : row(0), col(0), visited(false), wall(true) {}
-    Cell(int r, int c, bool v, bool w) : row(r), col(c), visited(v), wall(w) {}
+    Cell() : row(0), col(0), visited(false), wall(true), water(false){}
+    Cell(int r, int c, bool v, bool w, bool wtr) : row(r), col(c), visited(v), wall(w), water(wtr) {}
 };
 
 class Maze {
 private:
     int ROWS, COLS;
-    double LOOPCHANCE;
+    double LOOPCHANCE, WATERCHANCE;
     int GRIDROWS, GRIDCOLS;
     vector<vector<Cell>> grid;
 
@@ -29,7 +30,7 @@ private:
     void carveMazeIteratively(int x, int y);
 
 public:
-    Maze(int rows, int cols, double loopChance);
+    Maze(int rows, int cols, double loopChance, double waterChance);
     ~Maze();
 
     void generate();

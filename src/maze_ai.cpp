@@ -34,6 +34,8 @@ void A_STAR_AI::findPath(const Maze& maze, int startX, int startY, int goalX, in
     const int r = maze.getGridRows();
     const int c = maze.getGridCols();
 
+    if (grid[startY][startX].wall || grid[goalY][goalX].wall) return; // no valid path
+
     // Track the shortest known cost to each cell
     vector<vector<int>> gScore(r, vector<int>(c, INT_MAX));
     gScore[startY][startX] = 0;
@@ -68,7 +70,13 @@ void A_STAR_AI::findPath(const Maze& maze, int startX, int startY, int goalX, in
 
             if (nx >= 0 && nx < c && ny >= 0 && ny < r) {
                 if (!grid[ny][nx].wall) {
-                    int newG = cur->g + 1;
+                    int stepCost = 1;
+
+                    if (grid[ny][nx].water) {
+                        stepCost = 2;
+                    }
+
+                    int newG = cur->g + stepCost;
 
                     // Only consider this neighbor if we found a better path
                     if (newG < gScore[ny][nx]) {

@@ -7,19 +7,22 @@
 
 using namespace std;
 
+class Maze;
+
 class PathAnimator {
 private:
-    size_t pathSize;
     Uint32 timeOld;
-    Uint32 stepDelay;
+    vector<Uint32> delays;
     size_t index;
 
+    void populateDelays(const Maze& maze, const vector<pair<int,int>>& path, Uint32 baseDelay, Uint32 waterDelay);
+
 public:
-    PathAnimator(size_t size, Uint32 delay);
+    PathAnimator(const Maze& maze, const vector<pair<int, int>>& path, Uint32 baseDelay = 200, Uint32 waterDelay = 400);
 
     void update();
     size_t getIndex() const {return index;};
-    void reset(size_t newSize);
+    void reset(const Maze& maze, const vector<pair<int, int>>& path, Uint32 baseDelay = 200, Uint32 waterDelay = 400);
 };
 
 #endif

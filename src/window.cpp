@@ -51,7 +51,7 @@ void Window::swap() {
     SDL_GL_SwapWindow(this->window);
 }
 
-bool Window::handleEvents(bool& drawPath, bool& redrawMaze) {
+bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& tmp) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (SDL_EVENT_QUIT == event.type) {
@@ -69,6 +69,18 @@ bool Window::handleEvents(bool& drawPath, bool& redrawMaze) {
             }
             else if (SDLK_C == event.key.key) {
                 drawPath = false;
+            }
+            else if (SDLK_B == event.key.key) {
+                beginAnimation = true;
+            }
+            else if (SDLK_N == event.key.key) {
+                beginAnimation = false;
+            }
+            else if (SDLK_T == event.key.key) {
+                tmp = true;
+            }
+            else if (SDLK_Y == event.key.key) {
+                tmp = false;
             }
         }
     }

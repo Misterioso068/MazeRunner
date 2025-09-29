@@ -17,10 +17,12 @@ private:
 
     bool running;
     bool drawPath;
+    bool beginAnimation;
+    bool drawWater;
     bool redrawMaze;
 
 public:
-    Engine(int width, int height, int rows, int cols, int cellSize, double loopChance);
+    Engine(int width, int height, int rows, int cols, int cellSize, double loopChance, double waterChance);
     void run();  // main game loop
 };
 

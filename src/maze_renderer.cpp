@@ -10,16 +10,18 @@ MazeRenderer::~MazeRenderer() {
     // Add later if needed
 }
 
-void MazeRenderer::drawMaze(const Color& wall, const Color& path) {
+void MazeRenderer::drawMaze(const Color& wall, const Color& path, const Color& water, bool drawWater) {
     const auto& grid = maze.getGrid();
 
     glBegin(GL_QUADS);
     for (int i = 0; i < maze.getGridRows(); i++) {
         for (int j = 0; j < maze.getGridCols(); j++) {
             if (grid[i][j].wall) {
-                glColor3f(wall.r, wall.g, wall.b); // darker grey
+                glColor3f(wall.r, wall.g, wall.b); 
+            } else if (grid[i][j].water && drawWater) {
+                glColor3f(water.r, water.g, water.b); 
             } else {
-                glColor3f(path.r, path.g, path.b); // white
+                glColor3f(path.r, path.g, path.b);
             }
 
             drawCell(j, i);

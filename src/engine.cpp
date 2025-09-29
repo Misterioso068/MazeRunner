@@ -3,12 +3,14 @@
 #include <memory>
 #include "program/engine.hpp"
 
-Engine::Engine(int width, int height, int rows, int cols, int cellSize, double loopChance)
+Engine::Engine(int width, int height, int rows, int cols, int cellSize, double loopChance, double waterChance)
     : window("Maze Runner", width, height),
-      maze(rows, cols, loopChance),
+      maze(rows, cols, loopChance, waterChance),
       mazeRenderer(maze, cellSize),
       running(true),
       drawPath(false),
+      beginAnimation(false),
+      drawWater(true),
       redrawMaze(false)
 {
     if (!window.init()) {
@@ -24,9 +26,9 @@ void Engine::run() {
     unique_ptr<MazeAI> astarAI = make_unique<A_STAR_AI>();
 
     int bfsStartX = 1, bfsStartY = 1;
-    int dfsStartX = 999, dfsStartY = 1;
-    int astarStartX = 1, astarStartY = 999;
-    int goalX = 499, goalY = 499;
+    int dfsStartX = 1, dfsStartY = 1;
+    int astarStartX = 1, astarStartY = 1;
+    int goalX = 199, goalY = 199;
 
     bfsAI->findPath(maze, bfsStartX, bfsStartY, goalX, goalY);
     dfsAI->findPath(maze, dfsStartX, dfsStartY, goalX, goalY);
@@ -34,37 +36,38 @@ void Engine::run() {
 
     Color wall = {0.3f, 0.3f, 0.3f};
     Color path = {1.0f, 1.0f, 1.0f};
+    Color water = {0.0f, 0.0f, 1.0f};
+
     Color dfsPathColor = {0.0f, 0.0f, 1.0f};
     Color bfsPathColor = {1.0f, 0.0f, 0.0f};
     Color astarPathColor = {0.0f, 1.0f, 0.0f};
 
-    Uint32 stepDelay = 1;
-    PathAnimator bfsAnimator(bfsAI->getPath().size(), stepDelay);
-    PathAnimator dfsAnimator(dfsAI->getPath().size(), stepDelay);
-    PathAnimator astarAnimator(astarAI->getPath().size(), stepDelay);
+    PathAnimator bfsAnimator(maze, bfsAI->getPath(), 50, 400);
+    PathAnimator dfsAnimator(maze, dfsAI->getPath(), 50, 400);
+    PathAnimator astarAnimator(maze, astarAI->getPath(), 50, 400);
 
     while (running) {
-        running = window.handleEvents(drawPath, redrawMaze);
+        running = window.handleEvents(drawPath, redrawMaze, beginAnimation, drawWater);
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glLoadIdentity();
-        mazeRenderer.drawMaze(wall, path);
+        mazeRenderer.drawMaze(wall, path, water, drawWater);
 
         const auto& bfsAIPath = bfsAI->getPath();
         const auto& dfsAIPath = dfsAI->getPath();
         const auto& astarAIPath = astarAI->getPath();
 
-        if (!drawPath) {
+        if (beginAnimation) {
             // Animate the full path slowly
             bfsAnimator.update();
             dfsAnimator.update();
             astarAnimator.update();
 
-            mazeRenderer.drawAIPathAnimated(bfsAIPath, bfsAnimator.getIndex(), bfsPathColor);
             mazeRenderer.drawAIPathAnimated(dfsAIPath, dfsAnimator.getIndex(), dfsPathColor);
             mazeRenderer.drawAIPathAnimated(astarAIPath, astarAnimator.getIndex(), astarPathColor);
+            mazeRenderer.drawAIPathAnimated(bfsAIPath, bfsAnimator.getIndex(), bfsPathColor);
         }
 
         if (drawPath) {
@@ -80,9 +83,9 @@ void Engine::run() {
             dfsAI->findPath(maze, dfsStartX, dfsStartY, goalX, goalY);
             astarAI->findPath(maze, astarStartX, astarStartY, goalX, goalY);
 
-            bfsAnimator.reset(bfsAI->getPath().size());
-            dfsAnimator.reset(dfsAI->getPath().size());
-            astarAnimator.reset(astarAI->getPath().size());
+            bfsAnimator.reset(maze, bfsAI->getPath(), 50, 400);
+            dfsAnimator.reset(maze, dfsAI->getPath(), 50, 400);
+            astarAnimator.reset(maze, astarAI->getPath(), 50, 400);
 
             redrawMaze = false;
         }

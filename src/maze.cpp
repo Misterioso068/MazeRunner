@@ -3,10 +3,11 @@
 #include <stack>
 #include "program/maze.hpp"
 
-Maze::Maze(const int rows, const int cols, double loopChance) 
+Maze::Maze(const int rows, const int cols, double loopChance, double waterChance) 
     : ROWS(rows), 
       COLS(cols), 
       LOOPCHANCE(loopChance),
+      WATERCHANCE(waterChance),
       GRIDROWS(2 * rows + 1),
       GRIDCOLS(2 * cols + 1),
       grid(GRIDROWS, vector<Cell>(GRIDCOLS))
@@ -41,14 +42,14 @@ void Maze::createGridLayout() {
         for (int j = 0; j < GRIDCOLS; j++) {
             if (i % 2 != 0) {
                 if (j % 2 == 0) {
-                    grid[i][j] = Cell{i, j, false, true};
+                    grid[i][j] = Cell{i, j, false, true, false};
                 }
                 else {
-                    grid[i][j] = Cell{i, j, false, false};
+                    grid[i][j] = Cell{i, j, false, false, false};
                 }
             }
             else {
-                grid[i][j] = Cell{i, j, false, true};
+                grid[i][j] = Cell{i, j, false, true, false};
             }
             
         }
@@ -106,6 +107,11 @@ void Maze::carveMazeIteratively(int x, int y) {
                     grid[y + dy/2][x + dx/2].wall = false;
                     visited[y + dy/2][x + dx/2] = true;
                     visited[ny][nx] = true;
+
+                    if (rand() % 100 < WATERCHANCE * 100) {
+                        // With some probabilty make the block water
+                        grid[y + dy/2][x + dx/2].water = true;
+                    }
 
                     s.push({x, y});
                     s.push({nx, ny});
