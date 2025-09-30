@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <stdexcept>
 #include <memory>
+#include <iostream>
 #include "program/engine.hpp"
 
 Engine::Engine(int width, int height, int rows, int cols, int cellSize, double loopChance, double waterChance)
@@ -11,6 +12,7 @@ Engine::Engine(int width, int height, int rows, int cols, int cellSize, double l
       drawPath(false),
       beginAnimation(false),
       drawWater(true),
+      toggleWater(false),
       redrawMaze(false)
 {
     if (!window.init()) {
@@ -26,7 +28,7 @@ void Engine::run() {
     int bfsStartX = 1, bfsStartY = 1;
     int dfsStartX = 1, dfsStartY = 1;
     int astarStartX = 1, astarStartY = 1;
-    int goalX = 1999, goalY = 1999;
+    int goalX = 3999, goalY = 3999;
 
     bfsAI->findPath(maze, bfsStartX, bfsStartY, goalX, goalY);
     dfsAI->findPath(maze, dfsStartX, dfsStartY, goalX, goalY);
@@ -44,11 +46,24 @@ void Engine::run() {
     PathAnimator dfsAnimator(maze, dfsAI->getPath(), 1, 50);
     PathAnimator astarAnimator(maze, astarAI->getPath(), 1, 50);
 
+    // Create Maze Texture for ompitmized performance
+    mazeRenderer.createMazeTexture(wall, path, water, drawWater);
+
     // Movable Camera
     Camera2D cam;
 
+    // FPS counter
+    Uint32 lastTime = SDL_GetTicks();
+    int frames = 0;
+    GLfloat fps = 0.0f;
     while (running) {
-        running = window.handleEvents(drawPath, redrawMaze, beginAnimation, drawWater, cam);
+        running = window.handleEvents(drawPath, redrawMaze, beginAnimation, toggleWater, cam);
+
+        if (toggleWater) {
+            drawWater = !drawWater;
+            mazeRenderer.createMazeTexture(wall, path, water, drawWater);
+            toggleWater = false;
+        }
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -57,7 +72,7 @@ void Engine::run() {
         cam.applyProjection(maze.getGridRows(), maze.getGridCols());
 
         glLoadIdentity();
-        mazeRenderer.drawMaze(wall, path, water, drawWater);
+        mazeRenderer.drawMaze();
 
         const auto& bfsAIPath = bfsAI->getPath();
         const auto& dfsAIPath = dfsAI->getPath();
@@ -83,6 +98,8 @@ void Engine::run() {
 
         if (redrawMaze) {
             maze.generate();
+            mazeRenderer.createMazeTexture(wall, path, water, drawWater);
+
             bfsAI->findPath(maze, bfsStartX, bfsStartY, goalX, goalY);
             dfsAI->findPath(maze, dfsStartX, dfsStartY, goalX, goalY);
             astarAI->findPath(maze, astarStartX, astarStartY, goalX, goalY);
@@ -92,6 +109,15 @@ void Engine::run() {
             astarAnimator.reset(maze, astarAI->getPath(), 1, 50);
 
             redrawMaze = false;
+        }
+
+        frames++;
+        Uint32 currentTime = SDL_GetTicks();
+        if (currentTime - lastTime >= 1000) {
+            fps = frames * 1000.0f / (currentTime - lastTime);
+            cout << "FPS: " << fps << endl;
+            lastTime = currentTime;
+            frames = 0;
         }
 
         window.swap();

@@ -1,5 +1,5 @@
 CXX      := g++
-CXXFLAGS := -Wall -Wextra -std=c++20 -O1 -Iinclude
+CXXFLAGS := -Wall -Wextra -std=c++20 -O2 -Iinclude
 
 # Detect platform
 UNAME_S := $(shell uname -s)

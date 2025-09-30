@@ -32,7 +32,7 @@ public:
 
     bool init();
     void swap();
-    bool handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& drawWater, Camera2D& cam);
+    bool handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& toggleWater, Camera2D& cam);
 
 };
 

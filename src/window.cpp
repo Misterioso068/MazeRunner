@@ -60,7 +60,7 @@ void Window::updateViewport() {
     glViewport(offSetX, offSetY, mazeContainerWidth, mazeContainerHeight);
 }
 
-bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& drawWater, Camera2D& cam) {
+bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& toggleWater, Camera2D& cam) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (SDL_EVENT_QUIT == event.type) {
@@ -87,7 +87,7 @@ bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation
                 GLfloat dx = event.motion.x - lastMouseX;
                 GLfloat dy = event.motion.y - lastMouseY;
 
-                cam.move(-dx / cam.zoom, -dy / cam.zoom);
+                cam.move(-dx * 5.0f/ cam.zoom, -dy * 5.0f/ cam.zoom); // 5.0f is mouse sensitivity
 
                 lastMouseX = event.motion.x;
                 lastMouseY = event.motion.y;
@@ -113,10 +113,7 @@ bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation
                 beginAnimation = false;
             }
             else if (SDLK_T == event.key.key) {
-                drawWater = true;
-            }
-            else if (SDLK_Y == event.key.key) {
-                drawWater = false;
+                toggleWater = true;
             }
             else if (SDLK_EQUALS == event.key.key) {
                 cam.zoomIn();

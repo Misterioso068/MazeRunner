@@ -20,6 +20,7 @@ private:
     bool drawPath;
     bool beginAnimation;
     bool drawWater;
+    bool toggleWater;
     bool redrawMaze;
 
 public:

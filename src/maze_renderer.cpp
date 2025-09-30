@@ -2,7 +2,12 @@
 #include "program/maze_renderer.hpp"
 #include "program/maze.hpp"
 
-MazeRenderer::MazeRenderer(Maze& maze, GLfloat cellSize) : maze(maze), cellSize(cellSize) {
+// Helper to convert Color to unsigned char (RGB). Needed for texture creation
+struct RGB {
+    unsigned char r, g, b;
+};
+
+MazeRenderer::MazeRenderer(Maze& maze, GLfloat cellSize) : maze(maze), cellSize(cellSize), mazeTexture(0){
     // Add later if needed
 }
 
@@ -10,24 +15,82 @@ MazeRenderer::~MazeRenderer() {
     // Add later if needed
 }
 
-void MazeRenderer::drawMaze(const Color& wall, const Color& path, const Color& water, bool drawWater) {
+void MazeRenderer::createMazeTexture(const Color& wall, const Color& path, const Color& water, bool drawWater) {
     const auto& grid = maze.getGrid();
+    int r = maze.getGridRows();
+    int c = maze.getGridCols();
 
-    glBegin(GL_QUADS);
-    for (int i = 0; i < maze.getGridRows(); i++) {
-        for (int j = 0; j < maze.getGridCols(); j++) {
+    vector<RGB> pixels(r * c);
+
+    for (int i = 0; i < r; i++) {
+        for (int j = 0; j < c; j++) {
+            RGB color;
             if (grid[i][j].wall) {
-                glColor3f(wall.r, wall.g, wall.b); 
-            } else if (grid[i][j].water && drawWater) {
-                glColor3f(water.r, water.g, water.b); 
-            } else {
-                glColor3f(path.r, path.g, path.b);
+                color = {
+                    (unsigned char)(wall.r * 255.0f),
+                    (unsigned char)(wall.g * 255.0f),
+                    (unsigned char)(wall.b * 255.0f)
+                };
+            }
+            else if (grid[i][j].water && drawWater) {
+                color = {
+                    (unsigned char)(water.r * 255.0f),
+                    (unsigned char)(water.g * 255.0f),
+                    (unsigned char)(water.b * 255.0f)
+                };
+            }
+            else {
+                color = {
+                    (unsigned char)(path.r * 255.0f),
+                    (unsigned char)(path.g * 255.0f),
+                    (unsigned char)(path.b * 255.0f)
+                };
             }
 
-            drawCell(j, i);
+            pixels[i * c + j] = color;
         }
     }
+
+    if (mazeTexture != 0) {
+        glDeleteTextures(1, &mazeTexture);
+        mazeTexture = 0;
+    }
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    glGenTextures(1, &mazeTexture);
+    glBindTexture(GL_TEXTURE_2D, mazeTexture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, c, r, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void MazeRenderer::drawMaze() {
+    if (mazeTexture == 0) return;
+    glColor3f(1.0f, 1.0f, 1.0f);
+
+    int r = maze.getGridRows();
+    int c = maze.getGridCols();
+
+    GLfloat width = c * cellSize;
+    GLfloat height = r * cellSize;
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, mazeTexture);
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f(0, 0);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f(width, 0);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(width, height);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(0, height);
     glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
 }
 
 void MazeRenderer::drawAIPath(const vector<pair<int, int>>& path, const Color& c) {
