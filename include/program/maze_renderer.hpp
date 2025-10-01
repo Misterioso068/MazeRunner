@@ -24,6 +24,14 @@ public:
     MazeRenderer(Maze& maze, GLfloat cellSize);
     ~MazeRenderer();
 
+    // Prevent copying of MazeRenderer so that gpu leak does not occur with double freeing mazeTexture
+    MazeRenderer(const MazeRenderer&) = delete;
+    MazeRenderer& operator = (const MazeRenderer&) = delete;
+
+    // Allow moving MazeRenderer to new variable
+    MazeRenderer(MazeRenderer&& other) noexcept;
+    MazeRenderer& operator=(MazeRenderer&& other) noexcept;
+
     void createMazeTexture(const Color& wall, const Color& path, const Color& water, bool drawWater);
     void drawMaze();
     void drawAIPath(const vector<pair<int, int>>& path, const Color& c);

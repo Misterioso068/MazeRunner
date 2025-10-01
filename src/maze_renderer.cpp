@@ -12,8 +12,36 @@ MazeRenderer::MazeRenderer(Maze& maze, GLfloat cellSize) : maze(maze), cellSize(
 }
 
 MazeRenderer::~MazeRenderer() {
-    // Add later if needed
+    if (mazeTexture != 0) {
+        glDeleteTextures(1, &mazeTexture);
+        mazeTexture = 0;
+    }
 }
+
+MazeRenderer::MazeRenderer(MazeRenderer&& other) noexcept
+    : maze(other.maze), cellSize(other.cellSize), mazeTexture(other.mazeTexture) 
+{
+    other.mazeTexture = 0;
+}
+
+MazeRenderer& MazeRenderer::operator=(MazeRenderer&& other) noexcept {
+    if (this != &other) {
+        // Clean up current texture
+        if (mazeTexture != 0) {
+            glDeleteTextures(1, &mazeTexture);
+        }
+
+        // Steal resources
+        mazeTexture = other.mazeTexture;
+        cellSize    = other.cellSize;
+        // maze is a reference, so we can't rebind it — we assume both use the same Maze.
+
+        // Leave 'other' safe
+        other.mazeTexture = 0;
+    }
+    return *this;
+}
+
 
 void MazeRenderer::createMazeTexture(const Color& wall, const Color& path, const Color& water, bool drawWater) {
     const auto& grid = maze.getGrid();
