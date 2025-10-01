@@ -33,7 +33,7 @@ public:
     bool init();
     void swap();
     bool handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& toggleWater, Camera2D& cam);
-
+    void updateFPSVisuals(GLfloat fps);
 };
 
 #endif

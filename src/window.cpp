@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "program/window.hpp"
 #include "program/maze.hpp"
 #include "program/maze_ai.hpp"
@@ -125,4 +126,8 @@ bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation
     }
 
     return true;
+}
+
+void Window::updateFPSVisuals(GLfloat fps) {
+    SDL_SetWindowTitle(window, (string(name) + " FPS: " + to_string(fps)).c_str());
 }

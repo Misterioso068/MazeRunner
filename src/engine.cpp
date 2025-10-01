@@ -115,7 +115,7 @@ void Engine::run() {
         Uint32 currentTime = SDL_GetTicks();
         if (currentTime - lastTime >= 1000) {
             fps = frames * 1000.0f / (currentTime - lastTime);
-            cout << "FPS: " << fps << endl;
+            window.updateFPSVisuals(fps);
             lastTime = currentTime;
             frames = 0;
         }
