@@ -5,9 +5,9 @@
 #include "program/engine.hpp"
 
 Engine::Engine(int width, int height, int rows, int cols, int cellSize, double loopChance, double waterChance)
-    : window("Maze Runner", width, height),
-      maze(rows, cols, loopChance, waterChance),
+    : maze(rows, cols, loopChance, waterChance),
       mazeRenderer(maze, cellSize),
+      window("Maze Runner", width, height, maze.getGridCols(), maze.getGridRows()),
       running(true),
       drawPath(false),
       beginAnimation(false),
@@ -28,7 +28,7 @@ void Engine::run() {
     int bfsStartX = 1, bfsStartY = 1;
     int dfsStartX = 1, dfsStartY = 1;
     int astarStartX = 1, astarStartY = 1;
-    int goalX = 3999, goalY = 3999;
+    int goalX = maze.getGridCols() - 2, goalY = maze.getGridRows() - 2; // Goal is always bottom right
 
     bfsAI->findPath(maze, bfsStartX, bfsStartY, goalX, goalY);
     dfsAI->findPath(maze, dfsStartX, dfsStartY, goalX, goalY);
@@ -70,8 +70,8 @@ void Engine::run() {
 
         // Update camera projection
         cam.applyProjection(maze.getGridRows(), maze.getGridCols());
-
         glLoadIdentity();
+        
         mazeRenderer.drawMaze();
 
         const auto& bfsAIPath = bfsAI->getPath();

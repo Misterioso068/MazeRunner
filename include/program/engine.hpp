@@ -12,9 +12,9 @@ using namespace std;
 
 class Engine {
 private:
-    Window window;
     Maze maze;
     MazeRenderer mazeRenderer;
+    Window window;
 
     bool running;
     bool drawPath;

@@ -27,7 +27,7 @@ private:
     void updateViewport();
 
 public:
-    Window(const char* name, const int w, const int h);
+    Window(const char* name, const int w, const int h, const int mazeWidth, const int mazeHeight);
     ~Window();
 
     bool init();

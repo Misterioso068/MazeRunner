@@ -4,8 +4,8 @@
 #include "program/maze.hpp"
 #include "program/maze_ai.hpp"
 
-Window::Window(const char* name, const int w, const int h) 
-               : name(name), width(w), height(h), mazeContainerWidth(w), mazeContainerHeight(h), draggingMouse(false), lastMouseX(0), lastMouseY(0) {}
+Window::Window(const char* name, const int w, const int h, const int mazeWidth, const int mazeHeight) 
+               : name(name), width(w), height(h), mazeContainerWidth(mazeWidth), mazeContainerHeight(mazeHeight), draggingMouse(false), lastMouseX(0), lastMouseY(0) {}
 
 Window::~Window() {
     if (glContext) SDL_GL_DestroyContext(this->glContext);
@@ -54,11 +54,22 @@ void Window::swap() {
 }
 
 void Window::updateViewport() {
-    // Keep the maze container at the center of the window
-    int offSetX = (width - mazeContainerWidth) / 2;
-    int offSetY = (height - mazeContainerHeight) / 2; 
+    float mazeAspect = (float)mazeContainerWidth / (float)mazeContainerHeight;
+    float winAspect  = (float)width / (float)height;
 
-    glViewport(offSetX, offSetY, mazeContainerWidth, mazeContainerHeight);
+    int vpX = 0, vpY = 0, vpW = width, vpH = height;
+
+    if (winAspect > mazeAspect) {
+        // Window is wider -> black bars left/right
+        vpW = (int)(height * mazeAspect);
+        vpX = (width - vpW) / 2;
+    } else {
+        // Window is taller -> black bars top/bottom
+        vpH = (int)(width / mazeAspect);
+        vpY = (height - vpH) / 2;
+    }
+
+    glViewport(vpX, vpY, vpW, vpH);
 }
 
 bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation, bool& toggleWater, Camera2D& cam) {
