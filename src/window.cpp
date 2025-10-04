@@ -5,7 +5,15 @@
 #include "program/maze_ai.hpp"
 
 Window::Window(const char* name, const int w, const int h, const int mazeWidth, const int mazeHeight) 
-               : name(name), width(w), height(h), mazeContainerWidth(mazeWidth), mazeContainerHeight(mazeHeight), draggingMouse(false), lastMouseX(0), lastMouseY(0) {}
+               : name(name), 
+                 width(w), 
+                 height(h), 
+                 mazeContainerWidth(mazeWidth), 
+                 mazeContainerHeight(mazeHeight), 
+                 draggingMouse(false), 
+                 lastMouseX(0), 
+                 lastMouseY(0),
+                 mouseSens(2.5f) {}
 
 Window::~Window() {
     if (glContext) SDL_GL_DestroyContext(this->glContext);
@@ -99,7 +107,7 @@ bool Window::handleEvents(bool& drawPath, bool& redrawMaze, bool& beginAnimation
                 GLfloat dx = event.motion.x - lastMouseX;
                 GLfloat dy = event.motion.y - lastMouseY;
 
-                cam.move(-dx * 5.0f/ cam.zoom, -dy * 5.0f/ cam.zoom); // 5.0f is mouse sensitivity
+                cam.move(-dx * mouseSens * cam.zoom, -dy * mouseSens * cam.zoom);
 
                 lastMouseX = event.motion.x;
                 lastMouseY = event.motion.y;

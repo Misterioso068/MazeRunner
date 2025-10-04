@@ -23,6 +23,7 @@ private:
     bool draggingMouse;
     GLfloat lastMouseX;
     GLfloat lastMouseY;
+    GLfloat mouseSens;
 
     void updateViewport();
 
